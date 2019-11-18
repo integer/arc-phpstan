@@ -34,6 +34,11 @@ final class PhpstanLinter extends ArcanistExternalLinter
      */
     private $autoloadFile = null;
 
+    /**
+     * @var string Memory limit for phpstan calling.
+     */
+    private $memoryLimit = null;
+
     public function getInfoName()
     {
         return 'phpstan';
@@ -98,6 +103,9 @@ final class PhpstanLinter extends ArcanistExternalLinter
         if (null !== $this->autoloadFile) {
             array_push($flags, '-a', $this->autoloadFile);
         }
+        if (null !== $this->memoryLimit) {
+            array_push($flags, '--memory-limit', $this->memoryLimit);
+        }
 
         return $flags;
     }
@@ -113,6 +121,9 @@ final class PhpstanLinter extends ArcanistExternalLinter
         }
         if (null !== $this->autoloadFile) {
             array_push($flags, '-a', $this->autoloadFile);
+        }
+        if (null !== $this->memoryLimit) {
+            array_push($flags, '--memory-limit', $this->memoryLimit);
         }
 
         return $flags;
@@ -136,7 +147,14 @@ final class PhpstanLinter extends ArcanistExternalLinter
             'autoload' => array(
                 'type' => 'optional string',
                 'help' => pht(
-                    'The path to the auto load file. Will be provided as -a <autoload_file> to phpstan.'),
+                    'The path to the auto load file. Will be provided as -a <autoload_file> to phpstan.'
+                ),
+            ),
+            'memory-limit' => array(
+                'type' => 'optional string',
+                'help' => pht(
+                    'Memory limit for PHPStan. Will be provided as --memory-limit=<memorylimit> to phpstan.'
+                ),
             ),
         );
         return $options + parent::getLinterConfigurationOptions();
@@ -153,6 +171,9 @@ final class PhpstanLinter extends ArcanistExternalLinter
                 return;
             case 'autoload':
                 $this->autoloadFile = $value;
+                return;
+            case 'memory-limit':
+                $this->memoryLimit = $value;
                 return;
             default:
                 parent::setLinterConfigurationValue($key, $value);
